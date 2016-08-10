@@ -69,6 +69,14 @@ public class TOSListener implements Listener {
 	@CivConfig(name = "terms.MovementRange", def = "15", type = CivConfigType.Int)
 	@EventHandler
 	public void playerMoveEvent(PlayerMoveEvent event) {
+		if (event.getFrom().getBlockX() == event.getTo().getBlockX()
+				&& event.getFrom().getBlockY() == event.getTo().getBlockY()
+				&& event.getFrom().getBlockZ() == event.getTo().getBlockZ()
+				&& event.getFrom().getWorld().equals(event.getTo().getWorld())) {
+			// Player didn't move by at least one block.
+			return;
+		}
+		
 		Player p = event.getPlayer();
 		if (!TOSManager.isTermPlayer(p, "CivMenu Agreement")) {
 			Location from = locations.get(p.getUniqueId());
