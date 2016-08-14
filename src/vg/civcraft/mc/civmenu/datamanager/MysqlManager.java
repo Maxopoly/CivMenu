@@ -97,6 +97,7 @@ public class MysqlManager implements ISaveLoad{
 		final UUID uuid = p.getUniqueId();
 		if (!registeredPlayers.containsKey(uuid)){
 			registeredPlayers.put(uuid, new TermObject(uuid));
+			registeredPlayers.get(uuid).addTerm(term);
 			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable(){
 
 				@Override
