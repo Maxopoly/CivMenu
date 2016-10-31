@@ -5,9 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import vg.civcraft.mc.civmenu.CivMenu;
-import vg.civcraft.mc.civmodcore.annotations.CivConfig;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigType;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigs;
 
 public class UnloadDismissalsTask implements Runnable {
 
@@ -26,12 +23,9 @@ public class UnloadDismissalsTask implements Runnable {
 		unloadCache();
 	}
 	
-	@CivConfigs({
-		@CivConfig(name = "unload_delay", def = "18000", type = CivConfigType.Int)
-	})
 	public long getUnloadDelay() {
 		if(delay < 0) {
-			delay = CivMenu.getInstance().GetConfig().get("unload_delay").getInt();
+			delay = CivMenu.getInstance().getConfig().getInt("unload_delay", 18000);
 		}
 		return delay;
 	}
@@ -39,7 +33,7 @@ public class UnloadDismissalsTask implements Runnable {
 	public void unloadCache() {
 		for (Entry <UUID, Long> entry : mru.entrySet()) {
 			UUID id = entry.getKey();
-			if(mru.get(id) < System.currentTimeMillis() - CivMenu.getInstance().GetConfig().get("unload_delay").getInt()) {
+			if(mru.get(id) < System.currentTimeMillis() - CivMenu.getInstance().getConfig().getInt("unload_delay", 18000)) {
 				manager.unloadDismissals(id);
 			}
 		}

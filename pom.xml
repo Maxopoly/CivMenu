@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>vg.civcraft.mc</groupId>
 	<artifactId>CivMenu</artifactId>
-	<version>1.4.4</version>
+	<version>1.4.5</version>
 	<packaging>jar</packaging>
 
 	<name>CivMenu</name>
@@ -56,9 +56,9 @@
 			<url>https://build.devotedmc.com/plugin/repository/everything/</url>
 		</repository>
 		<repository>
-			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-		</repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
 	</repositories>
 
 </project>

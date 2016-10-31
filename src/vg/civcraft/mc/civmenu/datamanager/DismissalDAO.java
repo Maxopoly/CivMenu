@@ -9,13 +9,10 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import vg.civcraft.mc.civmenu.CivMenu;
 import vg.civcraft.mc.civmenu.database.Database;
-import vg.civcraft.mc.civmodcore.Config;
-import vg.civcraft.mc.civmodcore.annotations.CivConfig;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigType;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigs;
 
 public class DismissalDAO {
 
@@ -28,21 +25,14 @@ public class DismissalDAO {
 		tableName = plugin + "_dismissals";
 	}
 	
-	@CivConfigs({
-		@CivConfig(name = "mysql.username", def = "bukkit", type = CivConfigType.String),
-		@CivConfig(name = "mysql.password", def = "", type = CivConfigType.String),
-		@CivConfig(name = "mysql.host", def = "localhost", type = CivConfigType.String),
-		@CivConfig(name = "mysql.dbname", def = "bukkit", type = CivConfigType.String),
-		@CivConfig(name = "mysql.port", def = "3306", type = CivConfigType.Int)
-	})
 	private void initializeDatabase() {
 		CivMenu plugin = CivMenu.getInstance();
-		Config config = plugin.GetConfig();
-		String username = config.get("mysql.username").getString();
-		String password = config.get("mysql.password").getString();
-		String host = config.get("mysql.host").getString();
-		String dbname = config.get("mysql.dbname").getString();
-		int port = config.get("mysql.port").getInt();
+		FileConfiguration config = plugin.getConfig();
+		String username = config.getString("mysql.username");
+		String password = config.getString("mysql.password");
+		String host = config.getString("mysql.host");
+		String dbname = config.getString("mysql.dbname");
+		int port = config.getInt("mysql.port");
 		db = new Database(host, port, dbname, username, password, plugin.getLogger());
 		if (!db.connect()) {
 			plugin.getLogger().log(Level.INFO, "Mysql could not connect, shutting down.");

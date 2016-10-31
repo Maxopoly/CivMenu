@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,10 +15,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import vg.civcraft.mc.civmenu.database.TOSManager;
-import vg.civcraft.mc.civmodcore.Config;
-import vg.civcraft.mc.civmodcore.annotations.CivConfig;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigType;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigs;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,16 +25,11 @@ public class TOSListener implements Listener {
 
 	private CivMenu plugin = CivMenu.getInstance();
 	private Map<UUID, Location> locations;
-	private Config config = plugin.GetConfig();
 	
 	public TOSListener() {
 		locations = new ConcurrentHashMap<UUID, Location>();
 	}
 	
-	@CivConfigs({
-		@CivConfig(name = "terms.kickDelay", def = "1200", type = CivConfigType.Int),
-		@CivConfig(name = "terms.kickMessage", def = "You must accept the terms using /sign in order to play.", type = CivConfigType.String)
-	})
 	@EventHandler
 	public void playerJoinEvent(PlayerJoinEvent event) {
 		final Player p = event.getPlayer();
@@ -50,11 +42,11 @@ public class TOSListener implements Listener {
 				public void run() {
 					locations.remove(p.getUniqueId());
 					if(!TOSManager.isTermPlayer(p, "CivMenu Agreement")){
-						p.kickPlayer(ChatColor.DARK_RED+plugin.GetConfig().get("terms.kickMessage").getString());
+						p.kickPlayer(ChatColor.DARK_RED+plugin.getConfig().getString("terms.kickMessage", "You must accept the terms using /sign in order to play."));
 					}
 					
 				}
-			}.runTaskLater(this.plugin, plugin.GetConfig().get("terms.kickDelay").getInt());
+			}.runTaskLater(this.plugin, plugin.getConfig().getInt("terms.kickDelay", 1200));
 		}
 	}
 	
@@ -66,7 +58,6 @@ public class TOSListener implements Listener {
 		}
 	}
 	
-	@CivConfig(name = "terms.MovementRange", def = "15", type = CivConfigType.Int)
 	@EventHandler
 	public void playerMoveEvent(PlayerMoveEvent event) {
 		if (event.getFrom().getBlockX() == event.getTo().getBlockX()
@@ -84,7 +75,7 @@ public class TOSListener implements Listener {
 				from = event.getFrom();
 				locations.put(p.getUniqueId(), from);
 			}
-			if(event.getTo().distance(from) > plugin.GetConfig().get("terms.MovementRange").getInt()){
+			if(event.getTo().distance(from) > plugin.getConfig().getInt("terms.MovementRange", 15)){
 				p.sendMessage(ChatColor.RED + "You must accept the terms in order to play.");
 				sendTOS(p);
 				event.setTo(from);
@@ -92,35 +83,23 @@ public class TOSListener implements Listener {
 		}
 	}
 	
-	@CivConfigs({
-		@CivConfig(name = "terms.title.title" , def = "Welcome to Civcraft!", type = CivConfigType.String),
-		@CivConfig(name = "terms.subtitle" , def = "You need to agree to the TOS in chat", type = CivConfigType.String),
-		@CivConfig(name = "terms.message", def = "Civcraft is an experiment for communities, political ideologies, debate and discussion. Before you can start playing and join a civilization you must first read and agree to the terms of service", type = CivConfigType.String),
-		@CivConfig(name = "terms.link", def = "http://www.google.com", type = CivConfigType.String),
-		@CivConfig(name = "terms.linkMessage" , def = "You can click this message to open up the terms of service.", type = CivConfigType.String),
-		@CivConfig(name = "terms.confirm", def = "Once you've read it, you can click this message to agree to the terms", type = CivConfigType.String),
-		@CivConfig(name = "terms.title.fadeIn" , def = "20", type = CivConfigType.Int),
-		@CivConfig(name = "terms.title.stay" , def = "200", type = CivConfigType.Int),
-		@CivConfig(name = "terms.title.fadeOut" , def = "20", type = CivConfigType.Int)
-	})
 	public void sendTOS(Player p) {
-
+		FileConfiguration config = CivMenu.getInstance().getConfig();
 		Menu menu = new Menu();
-
-		TextComponent welcome = new TextComponent(config.get("terms.title.title").getString());
+		TextComponent welcome = new TextComponent(config.getString("terms.title.title", "Welcome to Civcraft!"));
 		welcome.setColor(ChatColor.YELLOW);
 		menu.setTitle(welcome);
 
-		TextComponent message = new TextComponent(plugin.GetConfig().get("terms.message").getString());
+		TextComponent message = new TextComponent(config.getString("terms.message", "You need to agree to the TOS in chat"));
 		message.setColor(ChatColor.AQUA);
 		menu.setSubTitle(message);
 
-		TextComponent link = new TextComponent(plugin.GetConfig().get("terms.linkMessage").getString());
-		link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, plugin.GetConfig().get("terms.link").getString()));
+		TextComponent link = new TextComponent(config.getString("terms.linkMessage"));
+		link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, config.getString("terms.link")));
 		link.setItalic(true);
 		menu.addPart(link);
 		
-		TextComponent confirm = new TextComponent(plugin.GetConfig().get("terms.confirm").getString());
+		TextComponent confirm = new TextComponent(config.getString("terms.confirm"));
 		confirm.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,"/sign"));
 		confirm.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("/sign").create()));
 		confirm.setItalic(true);
@@ -128,9 +107,9 @@ public class TOSListener implements Listener {
 		
 		menu.sendPlayer(p);
 		
-		Title title = new Title(config.get("terms.title.title").getString(), config.get("terms.subtitle").getString(),
-				config.get("terms.title.fadeIn").getInt(), config.get("terms.title.stay").getInt(),
-				config.get("terms.title.fadeOut").getInt());
+		Title title = new Title(config.getString("terms.title.title"), config.getString("terms.subtitle"),
+				config.getInt("terms.title.fadeIn", 20), config.getInt("terms.title.stay", 20),
+				config.getInt("terms.title.fadeOut", 20));
 		title.sendTitle(p);
 	}
 }

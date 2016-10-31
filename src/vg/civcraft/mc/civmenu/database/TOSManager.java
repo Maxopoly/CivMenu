@@ -4,35 +4,29 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import vg.civcraft.mc.civmenu.CivMenu;
 import vg.civcraft.mc.civmenu.datamanager.FlatFileManager;
 import vg.civcraft.mc.civmenu.datamanager.ISaveLoad;
 import vg.civcraft.mc.civmenu.datamanager.MysqlManager;
-import vg.civcraft.mc.civmodcore.Config;
-import vg.civcraft.mc.civmodcore.annotations.CivConfig;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigType;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigs;
 
 
 public class TOSManager {
 	private CivMenu plugin;
-	private static Config config;
+	private static FileConfiguration config;
 	
 	private static ISaveLoad manager;
 	
 	public TOSManager(CivMenu plugin) {
 		this.plugin = plugin;
-		config = plugin.GetConfig();
+		config = plugin.getConfig();
 		handleWriteManagerment();
 	}
 	
-	@CivConfigs({
-		@CivConfig(name = "save.manager", def = "1", type = CivConfigType.Int)
-	})
 	private void handleWriteManagerment() {
-		switch (config.get("save.manager").getInt()) {
+		switch (config.getInt("save.manager", 1)) {
 		case 0:
 			manager = new FlatFileManager(plugin);
 			break;

@@ -1,6 +1,7 @@
 package vg.civcraft.mc.civmenu;
 
 import org.bukkit.command.Command;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,9 +15,6 @@ import vg.civcraft.mc.civmenu.donators.DonatorDataFileLoader;
 import vg.civcraft.mc.civmenu.guides.DismissalCacheListener;
 import vg.civcraft.mc.civmenu.guides.ResponseManager;
 import vg.civcraft.mc.civmodcore.ACivMod;
-import vg.civcraft.mc.civmodcore.annotations.CivConfig;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigType;
-import vg.civcraft.mc.civmodcore.annotations.CivConfigs;
 import vg.civcraft.mc.mercury.MercuryAPI;
 
 public class CivMenu extends ACivMod {
@@ -43,28 +41,21 @@ public class CivMenu extends ACivMod {
 		
 	}
 	
-	public void onLoad() {
-		super.onLoad();
-	}
-	
     public void onDisable() { 
     	tosManager.save();
     }
 
     
-	@CivConfigs({
-		@CivConfig(name = "helpMenu.message", def = "Civcraft is a unique Minecraft server where the players make the rules. It's an experiment for communities, political ideologies, debate and discussion. Most Minecraft servers have rules, like “no griefing”, “no stealing”, or “be nice”. Civcraft doesn't. However, that doesn't mean you can run wild throughout the world, pillaging and plundering all that you come across, because Civcraft isn't an ordinary vanilla Minecraft server. We have a collection of plugins that encourages co-operation between players by increasing Minecraft's base difficulty tenfold and puts players in control of justice.", type = CivConfigType.String),
-		@CivConfig(name = "helpMenu.plugins", def= "NameLayer, Citadel, JukeAlert, RealisticBiomes, ItemExchange, CivChat2", type = CivConfigType.String)
-	})
     public void SendHelpMenu(Player player, JavaPlugin plugin){
 		Menu menu = new Menu();
+		FileConfiguration config = getConfig();
 
 		if (plugin == null) {
 			TextComponent title = new TextComponent("Civcraft Help Menu");
 			title.setColor(ChatColor.RED);
 			menu.setTitle(title);
-			menu.setSubTitle(new TextComponent(this.GetConfig().get("helpMenu.message").getString()));
-			String[] plugins = this.GetConfig().get("helpMenu.plugins").getString().split(", ");
+			menu.setSubTitle(new TextComponent(config.getString("helpMenu.message")));
+			String[] plugins = config.getString("helpMenu.plugins").split(", ");
 			for(String pluginName:plugins){
 				TextComponent part = new TextComponent(pluginName);
 				part.setColor(ChatColor.YELLOW);
